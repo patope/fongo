@@ -5,6 +5,7 @@ import com.mongodb.binding.AsyncConnectionSource;
 import com.mongodb.connection.AsyncConnection;
 import com.mongodb.connection.ServerConnectionState;
 import com.mongodb.connection.ServerDescription;
+import com.mongodb.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,11 @@ class FongoAsyncConnectionSource implements AsyncConnectionSource {
   @Override
   public ServerDescription getServerDescription() {
     return ServerDescription.builder().address(fongoAsync.getServerAddress()).state(ServerConnectionState.CONNECTED).version(fongoAsync.getServerVersion()).build();
+  }
+
+  @Override
+  public SessionContext getSessionContext() {
+    return null;
   }
 
   @Override

@@ -30,6 +30,11 @@ public class MockAsyncMongoClient extends MongoClientImpl {
       }
 
       @Override
+      public ClusterDescription getCurrentDescription() {
+        return null;
+      }
+
+      @Override
       public Server selectServer(ServerSelector serverSelector) {
         return null;
       }

@@ -16,14 +16,17 @@ import com.mongodb.connection.ServerVersion;
 import com.mongodb.operation.AsyncOperationExecutor;
 import com.mongodb.operation.AsyncReadOperation;
 import com.mongodb.operation.AsyncWriteOperation;
+import com.mongodb.session.ClientSession;
+import com.mongodb.session.SessionContext;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Faked out version of com.mongodb.client.async.Mongo
@@ -164,6 +167,11 @@ public class FongoAsync implements AsyncOperationExecutor {
       }
 
       @Override
+      public SessionContext getSessionContext() {
+        return null;
+      }
+
+      @Override
       public void getReadConnectionSource(SingleResultCallback<AsyncConnectionSource> callback) {
         LOG.info("getReadConnectionSource() operation:" + operation.getClass());
         callback.onResult(new FongoAsyncConnectionSource(FongoAsync.this), null);
@@ -186,6 +194,16 @@ public class FongoAsync implements AsyncOperationExecutor {
     }, callback);
   }
 
+  @Override
+  public <T> void execute(AsyncReadOperation<T> operation, ReadPreference readPreference, ClientSession session, SingleResultCallback<T> callback) {
+    execute(operation, readPreference, callback);
+  }
+
+  @Override
+  public <T> void execute(AsyncWriteOperation<T> operation, ClientSession session, SingleResultCallback<T> callback) {
+    execute(operation, callback);
+  }
+
   /**
    * Execute the write operation.
    *
@@ -199,6 +217,11 @@ public class FongoAsync implements AsyncOperationExecutor {
       public void getWriteConnectionSource(final SingleResultCallback<AsyncConnectionSource> callback) {
         LOG.info("getWriteConnectionSource() operation:" + operation.getClass());
         callback.onResult(new FongoAsyncConnectionSource(FongoAsync.this), null);
+      }
+
+      @Override
+      public SessionContext getSessionContext() {
+        return null;
       }
 
       @Override

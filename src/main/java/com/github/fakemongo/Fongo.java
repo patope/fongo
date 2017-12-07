@@ -1,30 +1,24 @@
 package com.github.fakemongo;
 
-import com.mongodb.DB;
-import com.mongodb.FongoDB;
-import com.mongodb.MockMongoClient;
-import com.mongodb.MongoClient;
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteConcern;
+import com.mongodb.*;
 import com.mongodb.binding.ConnectionSource;
 import com.mongodb.binding.ReadBinding;
 import com.mongodb.binding.WriteBinding;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.connection.ServerVersion;
-import com.mongodb.operation.OperationExecutor;
 import com.mongodb.operation.ReadOperation;
 import com.mongodb.operation.WriteOperation;
+import com.mongodb.session.SessionContext;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Faked out version of com.mongodb.Mongo
@@ -44,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author jon
  * @author twillouer
  */
-public class Fongo implements OperationExecutor {
+public class Fongo {
   private final static Logger LOG = LoggerFactory.getLogger(Fongo.class);
 
   public static final ServerVersion V3_2_SERVER_VERSION = new ServerVersion(3, 2);
@@ -59,6 +53,7 @@ public class Fongo implements OperationExecutor {
   private final String name;
   private final ServerVersion serverVersion;
   private final CodecRegistry codecRegistry;
+  private final FongoOperationExecutor operationExecutor;
 
   /**
    * @param name Used only for a nice toString in case you have multiple instances
@@ -86,6 +81,7 @@ public class Fongo implements OperationExecutor {
     this.serverVersion = serverVersion;
     this.codecRegistry = codecRegistry;
     this.mongo = createMongo();
+    this.operationExecutor = new FongoOperationExecutor(this);
   }
 
   /**
@@ -188,6 +184,11 @@ public class Fongo implements OperationExecutor {
       }
 
       @Override
+      public SessionContext getSessionContext() {
+        return null;
+      }
+
+      @Override
       public ReadBinding retain() {
         return this;
       }
@@ -212,6 +213,11 @@ public class Fongo implements OperationExecutor {
       }
 
       @Override
+      public SessionContext getSessionContext() {
+        return null;
+      }
+
+      @Override
       public WriteBinding retain() {
         return this;
       }
@@ -228,6 +234,9 @@ public class Fongo implements OperationExecutor {
     });
   }
 
+  public FongoOperationExecutor getOperationExecutor() {
+    return operationExecutor;
+  }
 
   @Override
   public String toString() {

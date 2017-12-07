@@ -1,13 +1,7 @@
 package com.mongodb;
 
 import com.github.fakemongo.FongoException;
-import com.github.fakemongo.impl.Aggregator;
-import com.github.fakemongo.impl.ExpressionParser;
-import com.github.fakemongo.impl.Filter;
-import com.github.fakemongo.impl.MapReduce;
-import com.github.fakemongo.impl.Tuple2;
-import com.github.fakemongo.impl.UpdateEngine;
-import com.github.fakemongo.impl.Util;
+import com.github.fakemongo.impl.*;
 import com.github.fakemongo.impl.geo.GeoUtil;
 import com.github.fakemongo.impl.index.GeoIndex;
 import com.github.fakemongo.impl.index.IndexAbstract;
@@ -15,24 +9,7 @@ import com.github.fakemongo.impl.index.IndexFactory;
 import com.github.fakemongo.impl.text.TextSearch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import org.bson.BSON;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonDocumentReader;
-import org.bson.BsonDocumentWriter;
-import org.bson.BsonValue;
+import org.bson.*;
 import org.bson.codecs.Codec;
 import org.bson.codecs.Decoder;
 import org.bson.codecs.DecoderContext;
@@ -46,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.assertions.Assertions.isTrueArgument;
 import static java.util.Collections.emptyList;
@@ -1601,11 +1580,12 @@ public class FongoDBCollection extends DBCollection {
     return retVal;
   }
 
-  public static List<com.mongodb.bulk.WriteRequest> translateWriteRequestsToNew(final List<com.mongodb.WriteRequest> writeRequests,
+  public static List<com.mongodb.bulk.WriteRequest> translateWriteRequestsToNew(final DBCollection dbCollection,
+                                                                                final List<com.mongodb.WriteRequest> writeRequests,
                                                                                 final Codec<DBObject> objectCodec) {
     List<com.mongodb.bulk.WriteRequest> retVal = new ArrayList<com.mongodb.bulk.WriteRequest>(writeRequests.size());
     for (com.mongodb.WriteRequest cur : writeRequests) {
-      retVal.add(cur.toNew());
+      retVal.add(cur.toNew(dbCollection));
     }
     return retVal;
   }
