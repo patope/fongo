@@ -77,12 +77,12 @@ public class FongoConnection implements Connection {
 
   @Override
   public <T> T command(String database, BsonDocument command, FieldNameValidator fieldNameValidator, ReadPreference readPreference, Decoder<T> commandResultDecoder, SessionContext sessionContext) {
-    throw new UnsupportedOperationException();
+    return command(database, command, false, fieldNameValidator, commandResultDecoder);
   }
 
   @Override
   public <T> T command(String database, BsonDocument command, FieldNameValidator commandFieldNameValidator, ReadPreference readPreference, Decoder<T> commandResultDecoder, SessionContext sessionContext, boolean responseExpected, SplittablePayload payload, FieldNameValidator payloadFieldNameValidator) {
-    throw new UnsupportedOperationException();
+    return command(database, command, false, commandFieldNameValidator, commandResultDecoder);
   }
 
   public WriteConcernResult insert(MongoNamespace namespace, boolean ordered, WriteConcern writeConcern, List<InsertRequest> inserts) {

@@ -69,13 +69,24 @@ class FongoAsyncConnection implements AsyncConnection {
   }
 
   @Override
-  public <T> void commandAsync(String database, BsonDocument command, FieldNameValidator fieldNameValidator, ReadPreference readPreference, Decoder<T> commandResultDecoder, SessionContext sessionContext, SingleResultCallback<T> callback) {
-    throw new UnsupportedOperationException();
-  }
+  public <T> void commandAsync(final String database, final BsonDocument command, final FieldNameValidator fieldNameValidator, final ReadPreference readPreference, final Decoder<T> commandResultDecoder, final SessionContext sessionContext, final SingleResultCallback<T> callback) {
+    LOG.info("commandAsync() command:{}", command);
+    asyncResult(new Callable<T>() {
+      @Override
+      public T call() throws Exception {
+        return fongoConnection.command(database, command, fieldNameValidator, readPreference, commandResultDecoder, sessionContext);
+      }
+    }, callback);  }
 
   @Override
-  public <T> void commandAsync(String database, BsonDocument command, FieldNameValidator commandFieldNameValidator, ReadPreference readPreference, Decoder<T> commandResultDecoder, SessionContext sessionContext, boolean responseExpected, SplittablePayload payload, FieldNameValidator payloadFieldNameValidator, SingleResultCallback<T> callback) {
-    throw new UnsupportedOperationException();
+  public <T> void commandAsync(final String database, final BsonDocument command, final FieldNameValidator commandFieldNameValidator, final ReadPreference readPreference, final Decoder<T> commandResultDecoder, final SessionContext sessionContext, final boolean responseExpected, final SplittablePayload payload, final FieldNameValidator payloadFieldNameValidator, SingleResultCallback<T> callback) {
+    LOG.info("commandAsync() command:{}", command);
+    asyncResult(new Callable<T>() {
+      @Override
+      public T call() throws Exception {
+        return fongoConnection.command(database, command, commandFieldNameValidator, readPreference, commandResultDecoder, sessionContext, responseExpected, payload, payloadFieldNameValidator);
+      }
+    }, callback);
   }
 
   public void insertAsync(final MongoNamespace namespace, final boolean ordered, final WriteConcern writeConcern, final List<InsertRequest> inserts, SingleResultCallback<WriteConcernResult> callback) {
