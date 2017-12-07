@@ -533,7 +533,14 @@ public class FongoConnection implements Connection {
         projection = dbObject(command.getDocument("projection"));
       }
       DBObject query = new BasicDBObject();
-      query.put("$query", dbObject(command.get("filter").asDocument()));
+      BsonValue filter = command.get("filter");
+      if(filter != null) {
+        query.put("$query", dbObject(filter.asDocument()));
+      }
+      else {
+        query.put("$query", dbObject(new BsonDocument()));
+      }
+
       if (command.containsKey("sort")) {
         query.put("$orderby", dbObject(command.getDocument("sort")));
       }
