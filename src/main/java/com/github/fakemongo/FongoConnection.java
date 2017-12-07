@@ -483,7 +483,7 @@ public class FongoConnection implements Connection {
       for (BsonValue document : documentsToInsert) {
         dbCollection.insert(dbObject(document.asDocument()));
       }
-      return (T) new Document("ok", 1).append("n", documentsToInsert.size());
+      return (T) new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(documentsToInsert.size()));
     }
     else if (command.containsKey("delete")) {
       final FongoDBCollection dbCollection = (FongoDBCollection) db.getCollection(command.get("delete").asString().getValue());
@@ -519,7 +519,7 @@ public class FongoConnection implements Connection {
           numDocsDeleted += result.getN();
         }
       }
-      return (T) new Document("ok", 1).append("n", numDocsDeleted);
+      return (T) new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(numDocsDeleted));
     }
     else if (command.containsKey("find")) {
       final FongoDBCollection dbCollection = (FongoDBCollection) db.getCollection(command.get("find").asString().getValue());
