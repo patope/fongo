@@ -6,6 +6,7 @@ import com.mongodb.binding.ReadBinding;
 import com.mongodb.binding.WriteBinding;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.connection.ServerVersion;
+import com.mongodb.internal.connection.NoOpSessionContext;
 import com.mongodb.operation.ReadOperation;
 import com.mongodb.operation.WriteOperation;
 import com.mongodb.session.SessionContext;
@@ -185,7 +186,7 @@ public class Fongo {
 
       @Override
       public SessionContext getSessionContext() {
-        return null;
+        return NoOpSessionContext.INSTANCE;
       }
 
       @Override
@@ -214,7 +215,7 @@ public class Fongo {
 
       @Override
       public SessionContext getSessionContext() {
-        return null;
+        return NoOpSessionContext.INSTANCE;
       }
 
       @Override

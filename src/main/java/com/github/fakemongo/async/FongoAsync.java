@@ -13,6 +13,7 @@ import com.mongodb.binding.AsyncConnectionSource;
 import com.mongodb.binding.AsyncReadBinding;
 import com.mongodb.binding.AsyncWriteBinding;
 import com.mongodb.connection.ServerVersion;
+import com.mongodb.internal.connection.NoOpSessionContext;
 import com.mongodb.operation.AsyncOperationExecutor;
 import com.mongodb.operation.AsyncReadOperation;
 import com.mongodb.operation.AsyncWriteOperation;
@@ -168,7 +169,7 @@ public class FongoAsync implements AsyncOperationExecutor {
 
       @Override
       public SessionContext getSessionContext() {
-        return null;
+        return NoOpSessionContext.INSTANCE;
       }
 
       @Override
@@ -221,7 +222,7 @@ public class FongoAsync implements AsyncOperationExecutor {
 
       @Override
       public SessionContext getSessionContext() {
-        return null;
+        return NoOpSessionContext.INSTANCE;
       }
 
       @Override

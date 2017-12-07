@@ -5,6 +5,7 @@ import com.mongodb.binding.AsyncConnectionSource;
 import com.mongodb.connection.AsyncConnection;
 import com.mongodb.connection.ServerConnectionState;
 import com.mongodb.connection.ServerDescription;
+import com.mongodb.internal.connection.NoOpSessionContext;
 import com.mongodb.session.SessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ class FongoAsyncConnectionSource implements AsyncConnectionSource {
 
   @Override
   public SessionContext getSessionContext() {
-    return null;
+    return NoOpSessionContext.INSTANCE;
   }
 
   @Override
