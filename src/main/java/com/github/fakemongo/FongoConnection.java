@@ -82,7 +82,7 @@ public class FongoConnection implements Connection {
 
   @Override
   public <T> T command(String database, BsonDocument command, FieldNameValidator commandFieldNameValidator, ReadPreference readPreference, Decoder<T> commandResultDecoder, SessionContext sessionContext, boolean responseExpected, SplittablePayload payload, FieldNameValidator payloadFieldNameValidator) {
-    command.put("documents", new BsonArray(payload.getPayload()));
+    command.put(payload.getPayloadName(), new BsonArray(payload.getPayload()));
     // eat all documents from payload
     payload.getPayload().clear();
     return command(database, command, false, commandFieldNameValidator, commandResultDecoder);
