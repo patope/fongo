@@ -485,7 +485,7 @@ public class FongoConnection implements Connection {
       for (BsonValue document : documentsToInsert) {
         dbCollection.insert(dbObject(document.asDocument()));
       }
-      return (T) new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(documentsToInsert.size()));
+      return reencode(commandResultDecoder, new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(documentsToInsert.size())));
     }
     else if (command.containsKey("delete")) {
       final FongoDBCollection dbCollection = (FongoDBCollection) db.getCollection(command.get("delete").asString().getValue());
@@ -521,7 +521,7 @@ public class FongoConnection implements Connection {
           numDocsDeleted += result.getN();
         }
       }
-      return (T) new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(numDocsDeleted));
+      return reencode(commandResultDecoder, new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(numDocsDeleted)));
     }
     else if (command.containsKey("find")) {
       final FongoDBCollection dbCollection = (FongoDBCollection) db.getCollection(command.get("find").asString().getValue());
@@ -596,7 +596,7 @@ public class FongoConnection implements Connection {
   }
 
   private <T> T reencode(final Decoder<T> commandResultDecoder, final String resultField, final BsonArray results) {
-    return commandResultDecoder.decode(new BsonDocumentReader(new BsonDocument(resultField, results)), decoderContext());
+    return reencode(commandResultDecoder, new BsonDocument(resultField, results));
   }
 
   private <T> T reencode(final Decoder<T> commandResultDecoder, final String resultField, final DBObject result) {
@@ -607,7 +607,11 @@ public class FongoConnection implements Connection {
     else {
       value = bsonDocument(result);
     }
-    return commandResultDecoder.decode(new BsonDocumentReader(new BsonDocument(resultField, value)), decoderContext());
+    return reencode(commandResultDecoder, new BsonDocument(resultField, value));
+  }
+
+  private <T> T reencode(final Decoder<T> commandResultDecoder, final BsonDocument result) {
+    return commandResultDecoder.decode(new BsonDocumentReader(result), decoderContext());
   }
 
   @Override
