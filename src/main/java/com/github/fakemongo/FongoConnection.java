@@ -523,6 +523,67 @@ public class FongoConnection implements Connection {
       }
       return reencode(commandResultDecoder, new BsonDocument().append("ok", new BsonInt32(1)).append("n", new BsonInt32(numDocsDeleted)));
     }
+    else if (command.containsKey("update")) {
+      final FongoDBCollection dbCollection = (FongoDBCollection) db.getCollection(command.get("update").asString().getValue());
+      List<BsonValue> updates = command.getArray("updates").getValues();
+      boolean ordered = command.getBoolean("ordered", BsonBoolean.FALSE).getValue();
+      boolean bypassDocumentValidation = command.getBoolean("bypassDocumentValidation", BsonBoolean.FALSE).getValue();
+      BsonDocument writeConcern = command.containsKey("writeConcern") ? command.getDocument("writeConcern") : null;
+
+      WriteConcern wc = WriteConcern.MAJORITY;
+      if (writeConcern != null) {
+        wc = new WriteConcern(
+                writeConcern.containsKey("w") ? writeConcern.getInt32("w").getValue() : null,
+                writeConcern.containsKey("wtimeout") ? writeConcern.getInt32("wtimeout").getValue() : null,
+                writeConcern.containsKey("j") ? writeConcern.getBoolean("j").getValue(): null);
+      }
+      List<UpdateRequest> updatesList = new ArrayList<UpdateRequest>();
+      for (BsonValue update : updates) {
+        BsonDocument d = update.asDocument();
+        UpdateRequest ur = new UpdateRequest(d.getDocument("q"), d.getDocument("u"), WriteRequest.Type.UPDATE);
+        if (d.containsKey("upsert")) {
+          ur.upsert(d.getBoolean("upsert").getValue());
+        }
+        if (d.containsKey("multi")) {
+          ur.multi(d.getBoolean("multi").getValue());
+        }
+        if (d.containsKey("collation")) {
+//          BsonDocument collation = d.getDocument("collation");
+//          Collation.builder()
+//
+//          ur.collation(collation);
+        }
+        if (d.containsKey("arrayFilters")) {
+          List<BsonValue> arrayFilters = d.getArray("arrayFilters").getValues();
+          List<BsonDocument> arrayFilters2 = new ArrayList<BsonDocument>();
+          for (BsonValue bsonValue : arrayFilters) {
+            arrayFilters2.add(bsonValue.asDocument());
+          }
+          ur.arrayFilters(arrayFilters2);
+        }
+        updatesList.add(ur);
+      }
+      // final Object w, final Integer wTimeoutMS, final Boolean fsync, final Boolean journal
+      BulkWriteResult bulkWriteResult = updateCommand(new MongoNamespace(dbCollection.getFullName()), ordered, wc, bypassDocumentValidation, updatesList);
+
+
+      int nModified = bulkWriteResult.getModifiedCount();
+      int n = bulkWriteResult.getMatchedCount();
+      BsonDocument result = new BsonDocument();
+      if (bulkWriteResult.getUpserts() != null) {
+        BsonArray bsonValues = new BsonArray();
+        for (BulkWriteUpsert upsert : bulkWriteResult.getUpserts()) {
+          bsonValues.add(new BsonDocument()
+                  .append("index", new BsonInt32(upsert.getIndex()))
+                  .append("_id", upsert.getId())
+          );
+        }
+        result.append("upserted", bsonValues);
+        n += bsonValues.size();
+      }
+
+      return reencode(commandResultDecoder, result.append("ok", new BsonInt32(1)).append("nModified", new BsonInt32(nModified)).append("n", new BsonInt32(n)));
+    }
     else if (command.containsKey("find")) {
       final FongoDBCollection dbCollection = (FongoDBCollection) db.getCollection(command.get("find").asString().getValue());
       BsonInt32 limit = getValue(command, "limit", -1);
